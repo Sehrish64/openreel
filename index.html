@@ -7,13 +7,27 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="top">
-    <h1>Open<span>Reel</span></h1>
+  <header class="top" id="topnav">
+    <div class="logo" id="logo">OPEN<span>REEL</span></div>
     <form id="searchForm" autocomplete="off">
-      <input id="q" type="search" placeholder="Search any film (old or new)...">
-      <button type="submit">Search</button>
+      <input id="q" type="search" placeholder="Search films...">
+      <button type="submit" aria-label="Search">&#128269;</button>
     </form>
   </header>
+
+  <section id="hero" hidden>
+    <div class="hero-bg" id="heroBg"></div>
+    <div class="hero-gradient"></div>
+    <div class="hero-content">
+      <div class="hero-kicker">Featured classic &middot; public domain</div>
+      <h1 class="hero-title" id="heroTitle"></h1>
+      <div class="hero-meta" id="heroMeta"></div>
+      <div class="hero-actions">
+        <button id="heroPlay" class="btn-play">&#9654; Play</button>
+        <button id="heroInfo" class="btn-info">&#9432; More Info</button>
+      </div>
+    </div>
+  </section>
 
   <main>
     <section id="results" hidden>
