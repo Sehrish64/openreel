@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenReel - free legal movies</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <h1>Open<span>Reel</span></h1>
+    <form id="searchForm" autocomplete="off">
+      <input id="q" type="search" placeholder="Search any film (old or new)...">
+      <button type="submit">Search</button>
+    </form>
+  </header>
+
+  <main>
+    <section id="results" hidden>
+      <h2 id="resultsTitle"></h2>
+      <h3 id="newTitle" hidden>New &amp; popular films: where to watch legally</h3>
+      <div class="row wrap" id="newRow"></div>
+      <h3 id="freeTitle" hidden>Free to watch here (public domain)</h3>
+      <div class="row wrap" id="freeRow"></div>
+    </section>
+    <section id="rows"></section>
+  </main>
+
+  <div id="modal" class="modal" hidden>
+    <div class="modal-box">
+      <button id="close" class="close" aria-label="Close">&times;</button>
+      <h2 id="mTitle"></h2>
+      <div id="mBody"></div>
+    </div>
+  </div>
+
+  <footer>
+    Free films come from the Internet Archive (public domain). Film info and
+    streaming availability from TMDB (optional key). OpenReel hosts no videos
+    and is not affiliated with any streaming service.
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
