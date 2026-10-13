@@ -13,6 +13,47 @@ const ROWS = [
   { title: "Silent films", q: "collection:feature_films AND mediatype:movies AND subject:silent" }
 ];
 
+// Curated, hand-verified: every identifier below was checked on 2026-10-13 —
+// archive.org metadata returns a playable video file AND /embed/<id> is HTTP 200.
+// See CLASSICS.md for the verification record.
+const CLASSICS = [
+  { id: "Night.Of.The.Living.Dead_1080p", name: "Night of the Living Dead", year: "1968" },
+  { id: "turner_video_341", name: "Charade", year: "1963" },
+  { id: "his_girl_friday", name: "His Girl Friday", year: "1940" },
+  { id: "The_General_Buster_Keaton", name: "The General", year: "1926" },
+  { id: "Brzdac1921", name: "The Kid", year: "1921" },
+  { id: "Nosferatu_most_complete_version_93_mins.", name: "Nosferatu", year: "1922" },
+  { id: "metropolis-1927-giorgio-moroders-edition-1080p-blu-ray-remux-avc-dts-hd-ma-5.1", name: "Metropolis", year: "1927" },
+  { id: "Detour", name: "Detour", year: "1945" },
+  { id: "doa_ipod", name: "D.O.A.", year: "1949" },
+  { id: "house_on_haunted_hill_ipod", name: "House on Haunted Hill", year: "1959" },
+  { id: "The.39.Steps.1935.ITA.ENG.960x720p.BRrip", name: "The 39 Steps", year: "1935" },
+  { id: "Hitch_Hiker", name: "The Hitch-Hiker", year: "1953" },
+  { id: "suddenly", name: "Suddenly", year: "1954" },
+  { id: "last-man-on-earth-4-k", name: "The Last Man on Earth", year: "1964" },
+  { id: "CarnivalofSouls", name: "Carnival of Souls", year: "1962" },
+  { id: "plan.-9.-from.-outer.-space.-1957", name: "Plan 9 from Outer Space", year: "1959" },
+  { id: "dressed_to_kill", name: "Sherlock Holmes: Dressed to Kill", year: "1946" },
+  { id: "TheBrainThatWouldntDie_165", name: "The Brain That Wouldn't Die", year: "1962" },
+  { id: "white_zombie", name: "White Zombie", year: "1932" },
+  { id: "ThePhantomoftheOpera", name: "The Phantom of the Opera", year: "1925" },
+  { id: "safety-last-1923-silent-film-noir-comedy-short", name: "Safety Last!", year: "1923" },
+  { id: "the-circus-1928-remastered-bluray-1080p-flac-1.0-x264-sinners", name: "The Circus", year: "1928" },
+  { id: "BeatTheDevil1953", name: "Beat the Devil", year: "1953" },
+  { id: "AStarIsBorn", name: "A Star Is Born", year: "1937" }
+];
+
+const INDIAN_CLASSICS = [
+  { id: "sant-tukaram-1936_202604", name: "Sant Tukaram", year: "1936" },
+  { id: "neecha-nagar-chetan-anand-1946-vidomon", name: "Neecha Nagar", year: "1946" },
+  { id: "ChetanPatilChandralekha", name: "Chandralekha", year: "1948" },
+  { id: "awaara.-1951.1080p.-web-dl.-avc.-aac.-ddr", name: "Awaara", year: "1951" },
+  { id: "do.-bigha.-zamin.-1953.576p.-mubi.-web-dl.x-264", name: "Do Bigha Zamin", year: "1953" },
+  { id: "pyaasa-1957-guru-dutt-hindi-dvd-rip-xvid-smeet", name: "Pyaasa", year: "1957" },
+  { id: "mother-india-1957-hindi-classic-film", name: "Mother India", year: "1957" },
+  { id: "kagaz-ke-phool", name: "Kaagaz Ke Phool", year: "1959" }
+];
+
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -67,8 +108,21 @@ function fill(rowEl, items, make) {
   items.forEach((i) => rowEl.appendChild(make(i)));
 }
 
+function addCuratedRow(host, title, list) {
+  const h = document.createElement("h2");
+  h.className = "row-title";
+  h.textContent = title;
+  const row = document.createElement("div");
+  row.className = "row";
+  host.append(h, row);
+  // curated lists need no network fetch — cards build instantly from verified ids
+  fill(row, list.map((c) => ({ identifier: c.id, title: c.name, year: c.year })), freeCard);
+}
+
 async function loadRows() {
   const host = $("rows");
+  addCuratedRow(host, "\u{1F31F} All-Time Classics", CLASSICS);
+  addCuratedRow(host, "\u{1F1EE}\u{1F1F3} Indian Classics", INDIAN_CLASSICS);
   for (const r of ROWS) {
     const h = document.createElement("h2");
     h.className = "row-title";
@@ -82,20 +136,17 @@ async function loadRows() {
   }
 }
 
-async function loadHero() {
-  try {
-    const docs = await ia(ROWS[0].q, 5);
-    if (!docs.length) return;
-    const d = docs[Math.floor(Math.random() * docs.length)];
-    $("heroBg").style.backgroundImage =
-      `url("${IA}/services/img/${encodeURIComponent(d.identifier)}")`;
-    $("heroTitle").textContent = d.title;
-    $("heroMeta").textContent =
-      `${d.year ? d.year + "  ·  " : ""}Public domain classic · free forever`;
-    $("heroPlay").onclick = () => openFree(d);
-    $("heroInfo").onclick = () => openInfo(d);
-    $("hero").hidden = false;
-  } catch (e) { /* hero stays hidden, rows still work */ }
+function loadHero() {
+  // hero always features a verified classic — shows instantly, no fetch needed
+  const c = CLASSICS[Math.floor(Math.random() * CLASSICS.length)];
+  const d = { identifier: c.id, title: c.name, year: c.year };
+  $("heroBg").style.backgroundImage =
+    `url("${IA}/services/img/${encodeURIComponent(d.identifier)}")`;
+  $("heroTitle").textContent = d.title;
+  $("heroMeta").textContent = `${d.year}  \u00B7  Public domain classic \u00B7 free forever`;
+  $("heroPlay").onclick = () => openFree(d);
+  $("heroInfo").onclick = () => openInfo(d);
+  $("hero").hidden = false;
 }
 
 function openModal(title, html) {
@@ -109,9 +160,13 @@ $("modal").onclick = (e) => { if (e.target.id === "modal") closeModal(); };
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
 
 function openFree(d) {
+  // ?autoplay=1 is honored by the archive.org embed player (verified 2026-10-13:
+  // the embed page's player config contains "autoplay":true with the param).
+  // The click that opens this modal counts as a user gesture, so playback
+  // starts immediately — one click, no extra steps.
   openModal(d.title, `
-    <iframe class="player" allowfullscreen
-      src="${IA}/embed/${encodeURIComponent(d.identifier)}"></iframe>
+    <iframe class="player" allowfullscreen allow="autoplay; fullscreen"
+      src="${IA}/embed/${encodeURIComponent(d.identifier)}?autoplay=1"></iframe>
     <p class="overview">Public domain film hosted by the Internet Archive.
       <a href="${IA}/details/${encodeURIComponent(d.identifier)}" target="_blank" rel="noopener">Open on archive.org</a></p>`);
 }
